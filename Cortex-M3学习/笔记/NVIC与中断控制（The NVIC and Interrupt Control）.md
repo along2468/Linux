@@ -19,9 +19,9 @@
 
 ​        CM3中有240个使能位和240个除能位，每个中断拥有一对，240个对分布在8对32位寄存器中，要想使能一个中断，需将SETENA对应的位设为1，反之，要想除能一个中断，要在CLRENA对应的位写入1。（往SETENA和CLRENA写入0没有任何效果）
 
-<img src="C:\Users\ALong\AppData\Roaming\Typora\typora-user-images\image-20230412001259694.png" alt="image-20230412001259694" style="zoom: 80%;" />
+<img src="images\image-20230412001259694.png" alt="image-20230412001259694" style="zoom: 80%;" />
 
-<img src="C:\Users\ALong\AppData\Roaming\Typora\typora-user-images\image-20230412002151876.png" alt="image-20230412002151876" style="zoom: 67%;" />
+<img src="images\image-20230412002151876.png" alt="image-20230412002151876" style="zoom: 67%;" />
 
 ​       SETENA和CLRENA各有8个，一共是8对，从SETENA0到SETENA7,CLRENA到CLRENA7，若使用的芯片支持32个中断，则只SETENA0和CLRENA0才需要使用，SETENA和CLRENA可以按字，半字，字节方式访问。  特别的SETENA7和CLRENA7分别有16个使能位和16个除能位。
 

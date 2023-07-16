@@ -87,9 +87,9 @@ IGMP:internet分组管理协议,广播,组播
 
 通过检查一个IP地址是否在上述范围内，可以判断它是局域网IP、广播IP还是组播IP。请注意，这些规则是一般性的指导，特定网络环境和配置可能会有不同的规则和限制。
 
-TCP编程:
+TCP编程API:
 
-socket函数:
+##### socket函数:
 
 int socket(int domain,int type,int protocol);
 
@@ -111,3 +111,139 @@ int socket(int domain,int type,int protocol);
    - `IPPROTO_UDP`：UDP 协议。
 
 `socket()` 函数的返回值是一个整数，即套接字描述符（socket descriptor），用于后续的套接字操作，如绑定地址、监听连接、发送和接收数据等。如果返回值为 `-1`，则表示创建套接字失败，可以通过查看 `errno` 变量获取错误码。
+
+
+
+##### bind函数:
+
+int bind(int sockfd,const struct sockaddr *addr,socklen_t addrlen);
+
+sockfd:通过socket函数拿到的文件描述符fd
+
+addr:struct sockaddr的结构体变量的地址
+
+addrlen:地址长度
+
+
+
+`struct sockaddr` 是一个通用的地址结构体，用于在网络编程中表示各种类型的网络地址。它是在 `<sys/socket.h>` 头文件中定义的，具体定义如下：
+
+```c
+struct sockaddr {
+    sa_family_t sa_family;    // 地址族，用于指定地址的类型
+    char sa_data[14];         // 地址数据，具体格式根据地址族而定
+};
+```
+
+`struct sockaddr` 结构体的成员包括：
+
+1. `sa_family`：地址族，用于指定地址的类型。可以是以下常见的值之一：
+   - `AF_INET`：IPv4 地址族
+   - `AF_INET6`：IPv6 地址族
+   - `AF_UNIX`：UNIX 域地址族
+   - 等等...
+
+2. `sa_data`：地址数据，具体格式根据地址族而定。不同的地址族有不同的数据结构和长度。
+
+`struct sockaddr` 结构体是一个通用的地址结构体，它被用于在网络编程中传递各种类型的地址信息。在实际使用时，通常会将 `struct sockaddr` 转换为具体的地址结构体，如 `struct sockaddr_in`（IPv4 地址结构体）或 `struct sockaddr_in6`（IPv6 地址结构体），以便进行更具体的操作。
+
+`struct sockaddr_in` 是用于表示 IPv4 地址的具体信息的结构体，在网络编程中广泛使用。它是在 `<netinet/in.h>` 头文件中定义的，具体定义如下：
+
+```c
+struct sockaddr_in {
+    sa_family_t sin_family;       // 地址族，通常为 AF_INET
+    in_port_t sin_port;           // 16 位端口号
+    struct in_addr sin_addr;      // 32 位 IPv4 地址
+    char sin_zero[8];             // 用于填充，通常设置为全零
+};
+```
+
+`struct sockaddr_in` 结构体的成员包括：
+
+1. `sin_family`：地址族，通常为 `AF_INET`，表示 IPv4 地址族。
+
+2. `sin_port`：16 位端口号，使用网络字节序（big-endian）表示。
+
+3. `sin_addr`：32 位 IPv4 地址，使用网络字节序表示。它是一个 `struct in_addr` 类型的结构体，定义如下：
+
+   ```c
+   struct in_addr {
+       in_addr_t s_addr;   // 32 位 IPv4 地址
+   };
+   ```
+
+   `s_addr` 成员存储了实际的 IPv4 地址。
+
+4. `sin_zero`：用于填充字段，通常设置为全零。
+
+`struct sockaddr_in` 结构体用于表示 IPv4 地址的具体信息，包括地址族、端口号和 IPv4 地址。在网络编程中，可以使用 `struct sockaddr_in` 结构体来指定要连接的服务器地址、绑定的本地地址等。通过将其与 `struct sockaddr` 进行类型转换，可以在网络编程中进行地址相关的操作，如建立连接、发送和接收数据等。
+
+
+
+`inet_pton` 函数用于将字符串形式的 IP 地址转换为网络字节序的二进制形式。
+
+inet_pton` 函数的原型如下：
+
+```c
+int inet_pton(int af, const char *src, void *dst);
+```
+
+参数说明：
+- `af`：表示地址族（address family），常见的有 `AF_INET` 表示 IPv4 地址族，`AF_INET6` 表示 IPv6 地址族。
+- `src`：指向包含人类可读的 IP 地址的字符串的指针。
+- `dst`：指向存储转换后 IP 地址的内存区域的指针。
+
+`inet_pton` 函数将字符串形式的 IP 地址转换为网络字节序的二进制形式，并将结果存储在 `dst` 指向的内存区域中。
+
+以下是一个示例，展示了 `inet_pton` 函数的使用：
+
+```c
+#include <stdio.h>
+#include <arpa/inet.h>
+
+int main() {
+    const char *ip = "192.0.2.1";
+    struct in_addr addr;
+    if (inet_pton(AF_INET, ip, &(addr.s_addr)) <= 0) {
+        printf("Invalid address\n");
+        return 1;
+    }
+
+    printf("IP address in network byte order: 0x%08X\n", addr.s_addr);
+    return 0;
+}
+```
+
+- 如果转换成功，函数返回一个非零值（通常是1）。
+- 如果转换失败，函数返回0，并且 `dst` 中的内容是未定义的
+
+
+
+##### `listen` 函数用于将一个套接字（socket）转换为被动监听状态，以便接受传入的连接请求。它通常用于服务器端程序中。
+
+在 C 语言的标准库中，`listen` 函数的原型如下：
+
+```c
+int listen(int sockfd, int backlog);
+```
+
+参数说明：
+- `sockfd`：表示要监听的套接字的文件描述符。
+- `backlog`：同时允许几路客户端和服务器进行连接的过程 
+
+一般填5,ARM最大为8
+
+##### accept函数:
+
+阻塞等待客户端连接请求
+
+int accept(int sockfd,struct sockaddr *addr,socklen_t *addrlen);
+
+sockfd 通过socket()创建,并bind(),listen()函数设置过的文件描述符
+
+addr和addrlen
+
+成功时返回已经建立好的newfd
+
+
+

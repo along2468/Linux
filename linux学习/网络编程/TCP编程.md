@@ -247,3 +247,91 @@ addr和addrlen
 
 
 
+以下是服务器端程序代码:
+
+```c
+#include "socket.h"
+#define SERV_PORT 5248
+#define SERV_IP_ADDR "192.168.118.147"
+int main(){
+int fd;
+char buff[32];
+struct sockaddr_in sin;
+
+if((fd=socket(AF_INET,SOCK_STREAM,0))<0){
+perror("socket");
+exit(1);
+}
+
+bzero(&sin,sizeof(sin));
+sin.sin_family=AF_INET;
+sin.sin_port=htons(SERV_PORT);
+sin.sin_addr.s_addr=inet_addr(SERV_IP_ADDR);//inet_addr only used IPV4
+if(inet_pton(AF_INET,SERV_IP_ADDR,&sin.sin_addr)!=1){
+perror("inet_pton");
+exit(1);
+}
+
+if(bind(fd,(struct sockaddr*)&sin,sizeof(sin))<0){
+perror("bind");
+exit(1);
+}
+listen(fd,5);
+int newfd;
+int red;
+newfd=accept(fd,NULL,NULL);
+if(newfd<0){
+perror("accept");
+exit(1);
+}
+while(1){
+bzero(buff,sizeof(buff));
+do{
+red=read(newfd,buff,32);
+}while(red<0&&EINTR==errno);
+if(red<0){
+perror("read");
+exit(1);
+}
+if(!red){
+break;
+}
+printf("read:%s\n",buff);
+}
+close(newfd);
+close(fd);
+return 0;
+}
+```
+
+接下来是客户端代码:
+
+```C
+#include "socket.h"
+#define SERV_PORT 5248
+#define SERV_IP_ADDR "192.168.118.147"
+int main(){
+struct sockaddr_in sin;
+int fd;
+char buff[32];
+if(fd=socket(AF_INET,SOCK_STREAM,0)<0){
+perror("socket");
+exit(1);
+}
+bzero(&sin,sizeof(sin));
+sin.sin_family=AF_INET;
+sin.sin_port=htons(SERV_PORT);
+sin.sin_addr.s_addr=inet_addr(SERV_IP_ADDR);
+if(inet_pton(AF_INET,SERV_IP_ADDR,&sin.sin_addr)!=1){
+perror("inet_pton");
+exit(1);
+}
+connect(fd,(struct sockaddr*)&sin,sizeof(sin));
+while(1){
+bzero(buff,sizeof(buff));
+fgets(buff,sizeof(buff),stdin);
+write(fd,buff,32);
+}
+}
+```
+

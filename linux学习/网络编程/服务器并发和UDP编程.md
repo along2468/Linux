@@ -204,43 +204,46 @@ return 0;
 
 ```
 #include "socket.h"
-#define SERV_IP_ADDR "192.168.118.148"
+//#define SERV_PORT 5248
+//#define SERV_IP_ADDR "192.168.118.148"
+int main(int argc, char**argv){
+int SERV_IP_ADDR=atoi(argv[1]);
+int SERV_PORT=atoi(argv[2]);
+int fd;
 
 void usage(char *s){
 printf("%s serv_ip serv_port\n",s);
 printf("\n\t ser_ip:server ip address");
 printf("\n\t serv_port:server port(>5000)\n\t");
 }
-
-int main(int argc,char**argv){
-struct sockaddr_in sin;
-int fd;
-short port;
-char buff[32];
-
-if(argc !=3){
+if(argc!=3){
 usage(argv[0]);
 exit(1);
 }
-int SERV_PORT=atoi(argv[2]);
-if((fd=socket(AF_INET,SOCK_STREAM,0))<0){
+
+if((fd=socket(AF_INET,SOCK_DGRAM,0))<0){
 perror("socket");
 exit(1);
 }
+struct sockaddr_in sin;
+struct in_addr addr;
 bzero(&sin,sizeof(sin));
 sin.sin_family=AF_INET;
+sin.sin_addr.s_addr=inet_aton((char *)&SERV_IP_ADDR,&addr);
+sin.sin_addr=addr;
 sin.sin_port=htons(SERV_PORT);
-sin.sin_addr.s_addr=inet_addr(SERV_IP_ADDR);
-if(inet_pton(AF_INET,SERV_IP_ADDR,&sin.sin_addr)!=1){
-perror("inet_pton");
-exit(1);
-}
-connect(fd,(struct sockaddr*)&sin,sizeof(sin));
+char buf[32];
 while(1){
-bzero(buff,sizeof(buff));
-fgets(buff,sizeof(buff),stdin);
-write(fd,buff,32);
+bzero(buf,sizeof(buf));
+fgets(buf,sizeof(buf),stdin);
+/*if(send(fd,(void*)buf,sizeof(buf),MSG_DONTWAIT)<0){
+perror("send");
+exit(1);
+}*/
+sendto(fd,buf,sizeof(buf),MSG_DONTWAIT,(struct sockaddr*)&sin,sizeof(sin));
 }
+return 0;
 }
+
 ```
 

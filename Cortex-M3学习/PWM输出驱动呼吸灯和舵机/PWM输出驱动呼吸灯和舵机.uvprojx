@@ -690,6 +690,16 @@
               <FileType>5</FileType>
               <FilePath>.\hardware\Delay.h</FilePath>
             </File>
+            <File>
+              <FileName>servo.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\hardware\servo.c</FilePath>
+            </File>
+            <File>
+              <FileName>servo.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\hardware\servo.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

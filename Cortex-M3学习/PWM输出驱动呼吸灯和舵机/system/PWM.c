@@ -12,8 +12,8 @@ GPIO_InitTypeDef gpio_initstruct;
 TIM_TimeBaseInitTypeDef tim_initstruct;
     tim_initstruct.TIM_ClockDivision=TIM_CKD_DIV1;
 	tim_initstruct.TIM_CounterMode=TIM_CounterMode_Up;//向上计数
-	tim_initstruct.TIM_Period=100-1;//ARR
-	tim_initstruct.TIM_Prescaler=720-1;//PSC
+	tim_initstruct.TIM_Period=20000-1;//ARR
+	tim_initstruct.TIM_Prescaler=72-1;//PSC
 	tim_initstruct.TIM_RepetitionCounter=0;
 TIM_TimeBaseInit(TIM2,&tim_initstruct);
 	

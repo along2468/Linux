@@ -1,19 +1,17 @@
 #include "stm32f10x.h"                  // Device header
 #include "Delay.h"
 #include "pwm.h"
+#include "servo.h"
 int main(){
-	pwm_init();
+	servo_init();
 	uint16_t i;
 	while(1){
-	for(i=0;i<=100;i++){
-	pwd_setcompare(i);
+		for(i=0;i<=180;i=i+30){
+		setsingle(i);
+		}
 		Delay_ms(10);
+		setsingle(180);
+		}
 	}
-	Delay_ms(100);
-	for(i=0;i<=100;i++){
-	pwd_setcompare(100-i);
-		Delay_ms(10);
-	}
-	}
-}
+
 
